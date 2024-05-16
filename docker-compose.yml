@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  neo4j:
+    image: neo4j:5.13.0
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    environment:
+      - NEO4J_dbms_security_auth__enabled=false
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_PLUGINS=["apoc"]
+
+  jupyter:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/notebooks
+    command: /bin/bash -c "/convert_notebooks.sh && jupyter notebook --ip=0.0.0.0 --allow-root --no-browser"
+    # El comando anterior ejecuta el script convert_notebooks.sh y luego inicia el servidor Jupyter
+
+volumes:
+  neo4j-data:
+  neo4j-logs:
+  notebooks:
